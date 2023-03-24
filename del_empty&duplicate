@@ -1,0 +1,46 @@
+def remove_empty_folders(path):
+    if not os.path.isdir(path):
+        return
+
+    # remove empty subfolders
+    files = os.listdir(path)
+    if len(files):
+        for f in files:
+            fullpath = os.path.join(path, f)
+            if os.path.isdir(fullpath):
+                remove_empty_folders(fullpath)
+
+    # if folder empty, delete it
+    files = os.listdir(path)
+    if len(files) == 0:
+        print("Removing empty folder:", path)
+        os.rmdir(path)
+
+def remove_duplicate_files(path):
+    # dict to store file hashes
+    hashes = {}
+    # traverse root directory, and list directories as dirs and files as files
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            # get full path of file
+            filepath = os.path.join(root, file)
+            # if file is empty, delete it
+            if os.path.getsize(filepath) == 0:
+                print("Removing empty file:", filepath)
+                os.remove(filepath)
+            else:
+                # calculate hash of file
+                with open(filepath, 'rb') as f:
+                    filehash = hashlib.md5(f.read()).hexdigest()
+                # if hash already exists, delete file
+                if filehash in hashes:
+                    print("Removing duplicate file:", filepath)
+                    os.remove(filepath)
+                else:
+                    hashes[filehash] = filepath
+
+if __name__ == '__main__':
+    path = input("Enter path to directory: ")
+    remove_empty_folders(path)
+    remove_duplicate_files(path)
+
